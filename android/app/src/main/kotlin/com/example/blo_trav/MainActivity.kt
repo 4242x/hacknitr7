@@ -1,4 +1,4 @@
-package com.example.hacknitr7
+package com.example.blo_trav
 
 import io.flutter.embedding.android.FlutterActivity
 
