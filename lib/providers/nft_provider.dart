@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../models/nft_model.dart';
 import '../services/nft_service.dart';
-import '../services/blockchain_service.dart';
 
 class NFTProvider with ChangeNotifier {
   List<NFTModel> _availableNFTs = [];
@@ -85,41 +84,11 @@ class NFTProvider with ChangeNotifier {
         return false;
       }
 
-      // Use the provided wallet address
-      String ownerAddress = walletAddress;
-
-      // Mint NFT on blockchain
-      // Note: For full blockchain integration, you would need:
-      // 1. WalletConnect or similar for transaction signing
-      // 2. User approval for transactions
-      // 3. Real gas fees payment
-      // For now, using simulated version - replace with real minting when ready
-      var result = await BlockchainService.mintNFTSimulated(tokenId, ownerAddress);
-      
-      // TODO: Replace with real blockchain minting:
-      // var result = await BlockchainService.mintNFT(
-      //   tokenId,
-      //   ownerAddress,
-      //   privateKey, // Get from secure storage or user input
-      // );
-      
-      if (result['success'] == true) {
-        // Save claim locally
-        bool saved = await NFTService.claimNFT(tokenId, ownerAddress);
-        if (saved) {
-          // Reload NFTs
-          await loadAvailableNFTs();
-          await loadClaimedNFTs();
-          _isLoading = false;
-          notifyListeners();
-          return true;
-        }
-      }
-
-      _error = 'Failed to claim NFT';
+      // Validation passed - transaction signing will happen in UI
+      // Return true to indicate validation passed, actual minting happens after signing
       _isLoading = false;
       notifyListeners();
-      return false;
+      return true;
     } catch (e) {
       _error = 'Error claiming NFT: $e';
       _isLoading = false;

@@ -109,7 +109,7 @@ class SettingsScreen extends StatelessWidget {
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     title: const Text('Total Locations'),
-                    subtitle: const Text('10 locations in Kolkata'),
+                    subtitle: const Text('15 locations across India'),
                   ),
                 ],
               ),

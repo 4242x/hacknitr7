@@ -85,9 +85,9 @@ class _MapScreenState extends State<MapScreen> {
                       locationProvider.currentPosition!.latitude,
                       locationProvider.currentPosition!.longitude,
                     )
-                  : const LatLng(22.5448, 88.3426), // Default to Kolkata
-              initialZoom: 13.0,
-              minZoom: 10.0,
+                  : const LatLng(23.0225, 72.5714), // Default to center of India
+              initialZoom: 5.0, // Zoom out to show all of India
+              minZoom: 4.0,
               maxZoom: 18.0,
             ),
             children: [

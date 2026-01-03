@@ -113,7 +113,7 @@ The app now supports wallet connection. Users can:
 
 1. Run the Flutter app
 2. Connect your wallet (enter your wallet address)
-3. Visit a location in Kolkata
+3. Visit a location across India
 4. Claim an NFT
 5. Check your wallet on [Polygonscan Amoy](https://amoy.polygonscan.com/) to see your NFT
 

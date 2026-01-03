@@ -70,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kolkata NFT Explorer'),
+        title: const Text('India NFT Explorer'),
         actions: [
           // Wallet Connection Button
           Padding(

@@ -7,6 +7,7 @@ import '../providers/wallet_provider.dart';
 import '../services/nft_service.dart';
 import '../models/nft_model.dart';
 import 'wallet_connect_screen.dart';
+import 'transaction_signing_screen.dart';
 
 class NFTDetailScreen extends StatefulWidget {
   final String tokenId;
@@ -93,7 +94,8 @@ class _NFTDetailScreenState extends State<NFTDetailScreen> {
       return;
     }
 
-    final success = await nftProvider.claimNFT(
+    // Validate claim (location check)
+    final canClaim = await nftProvider.claimNFT(
       widget.tokenId,
       locationProvider.currentPosition!.latitude,
       locationProvider.currentPosition!.longitude,
@@ -102,18 +104,62 @@ class _NFTDetailScreenState extends State<NFTDetailScreen> {
 
     if (!mounted) return;
 
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('NFT claimed successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      await _loadNFT();
-    } else {
+    if (!canClaim) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(nftProvider.error ?? 'Failed to claim NFT'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Open transaction signing screen
+    final result = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TransactionSigningScreen(
+          tokenId: widget.tokenId,
+          recipientAddress: walletProvider.walletAddress!,
+          locationName: _nft?.name ?? 'Location ${widget.tokenId}',
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+
+    if (result != null && result['success'] == true) {
+      // Save claim locally
+      final saved = await NFTService.claimNFT(
+        widget.tokenId,
+        walletProvider.walletAddress!,
+      );
+
+      if (saved) {
+        // Reload NFTs
+        await nftProvider.loadAvailableNFTs();
+        await nftProvider.loadClaimedNFTs();
+        await _loadNFT();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('NFT claimed successfully! Transaction: ${result['transactionHash']}'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Transaction successful but failed to save locally'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } else if (result != null && result['success'] == false) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result['error'] ?? 'Transaction failed'),
           backgroundColor: Colors.red,
         ),
       );
