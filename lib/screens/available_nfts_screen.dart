@@ -1,8 +1,10 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/nft_provider.dart';
 import '../models/nft_model.dart';
+import '../theme/app_theme.dart';
 
 class AvailableNFTsScreen extends StatefulWidget {
   const AvailableNFTsScreen({super.key});
@@ -26,151 +28,280 @@ class _AvailableNFTsScreenState extends State<AvailableNFTsScreen> {
     final nftProvider = context.watch<NFTProvider>();
 
     return Scaffold(
+      backgroundColor: AppTheme.deepBackground,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Available NFTs'),
+        backgroundColor: Colors.transparent,
+        title: Text(
+          'Marketplace',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          Container(
+            margin: EdgeInsets.only(right: 16),
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceGlass,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.search, color: Colors.white),
+          ),
+        ],
       ),
-      body: nftProvider.isLoading && nftProvider.availableNFTs.isEmpty
-          ? Center(
-              child: CircularProgressIndicator(
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            )
-          : nftProvider.error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.error_outline,
-                        size: size.width * 0.2,
-                        color: Colors.red,
-                      ),
-                      SizedBox(height: size.height * 0.02),
-                      Text(
-                        nftProvider.error!,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: size.height * 0.02),
-                      ElevatedButton(
-                        onPressed: () => nftProvider.loadAvailableNFTs(),
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                )
-              : nftProvider.availableNFTs.isEmpty
-                  ? Center(
-                      child: Text(
-                        'No NFTs available',
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: () => nftProvider.loadAvailableNFTs(),
-                      child: GridView.builder(
-                        padding: EdgeInsets.all(size.width * 0.04),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: size.width > 600 ? 3 : 2,
-                          crossAxisSpacing: size.width * 0.04,
-                          mainAxisSpacing: size.width * 0.04,
-                          childAspectRatio: 0.75,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppTheme.deepBackground,
+              Color(0xFF131825),
+            ],
+          ),
+        ),
+        child: nftProvider.isLoading && nftProvider.availableNFTs.isEmpty
+            ? Center(
+                child: CircularProgressIndicator(
+                  color: AppTheme.primaryPurple,
+                ),
+              )
+            : RefreshIndicator(
+                onRefresh: () => nftProvider.loadAvailableNFTs(),
+                color: AppTheme.accentCyan,
+                backgroundColor: AppTheme.surfaceDark,
+                child: CustomScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(20, 100, 20, 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Discover NFTs',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Find and collect rare digital assets near you.',
+                              style: TextStyle(
+                                color: Colors.white60,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
                         ),
-                        itemCount: nftProvider.availableNFTs.length,
-                        itemBuilder: (context, index) {
-                          final nft = nftProvider.availableNFTs[index];
-                          return _buildNFTCard(context, nft, size);
-                        },
                       ),
                     ),
+                    if (nftProvider.error != null)
+                      SliverFillRemaining(
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.error_outline, size: 60, color: Colors.redAccent),
+                              SizedBox(height: 16),
+                              Text(
+                                nftProvider.error!,
+                                style: TextStyle(color: Colors.white70),
+                              ),
+                              SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () => nftProvider.loadAvailableNFTs(),
+                                child: Text('Retry'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    else if (nftProvider.availableNFTs.isEmpty)
+                      SliverFillRemaining(
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.explore_off, size: 60, color: Colors.white24),
+                              SizedBox(height: 16),
+                              Text('No NFTs available', style: TextStyle(color: Colors.white54)),
+                            ],
+                          ),
+                        ),
+                      )
+                    else
+                      SliverPadding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        sliver: SliverGrid(
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: size.width > 600 ? 3 : 2,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 0.7,
+                          ),
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final nft = nftProvider.availableNFTs[index];
+                              return _buildModernNFTCard(context, nft);
+                            },
+                            childCount: nftProvider.availableNFTs.length,
+                          ),
+                        ),
+                      ),
+                    SliverToBoxAdapter(child: SizedBox(height: 40)),
+                  ],
+                ),
+              ),
+      ),
     );
   }
 
-  Widget _buildNFTCard(BuildContext context, NFTModel nft, Size size) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          Navigator.pushNamed(
-            context,
-            '/nft-detail',
-            arguments: nft.tokenId,
-          );
-        },
+  Widget _buildModernNFTCard(BuildContext context, NFTModel nft) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          '/nft-detail',
+          arguments: nft.tokenId,
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.surfaceGlass,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withOpacity(0.05)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 8,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // NFT Image
             Expanded(
-              flex: 3,
+              flex: 4,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  CachedNetworkImage(
-                    imageUrl: nft.imageUrl,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      color: Colors.grey[300],
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                  Hero(
+                    tag: 'nft_image_${nft.tokenId}',
+                    child: CachedNetworkImage(
+                      imageUrl: nft.imageUrl,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: AppTheme.surfaceDark,
+                        child: Center(child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primaryPurple)),
                       ),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image_not_supported),
+                      errorWidget: (context, url, error) => Container(
+                         color: AppTheme.surfaceDark,
+                         child: Icon(Icons.broken_image, color: Colors.white24),
+                      ),
                     ),
                   ),
                   if (nft.isClaimed)
                     Positioned(
-                      top: size.width * 0.02,
-                      right: size.width * 0.02,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: size.width * 0.02,
-                          vertical: size.width * 0.01,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          'CLAIMED',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: size.width * 0.025,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      top: 8,
+                      right: 8,
+                      child: ClipRRect(
+                         borderRadius: BorderRadius.circular(12),
+                         child: BackdropFilter(
+                           filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                           child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              color: Colors.black.withOpacity(0.5),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.check_circle, color: Colors.greenAccent, size: 12),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'CLAIMED',
+                                    style: TextStyle(
+                                      color: Colors.white, 
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold
+                                    ),
+                                  ),
+                                ],
+                              ),
+                           ),
+                         ),
+                      ),
+                    ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: 40,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Colors.transparent, Colors.black45],
                         ),
                       ),
                     ),
+                  ),
                 ],
               ),
             ),
-            // NFT Info
             Expanded(
               flex: 2,
               child: Padding(
-                padding: EdgeInsets.all(size.width * 0.03),
+                padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      nft.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          nft.name,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          nft.location?.name ?? 'Unknown Location',
+                          style: TextStyle(
+                            color: Colors.white54,
+                            fontSize: 10,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
-                    SizedBox(height: size.height * 0.005),
-                    Expanded(
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryPurple.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       child: Text(
-                        nft.description,
-                        style: Theme.of(context).textTheme.bodySmall,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                        'View Details',
+                        style: TextStyle(
+                          color: AppTheme.primaryPurple,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -183,8 +314,3 @@ class _AvailableNFTsScreenState extends State<AvailableNFTsScreen> {
     );
   }
 }
-
-
-
-
-

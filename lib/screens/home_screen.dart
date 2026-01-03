@@ -1,9 +1,11 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/nft_provider.dart';
 import '../providers/wallet_provider.dart';
 import '../services/nft_service.dart';
+import '../theme/app_theme.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -41,13 +43,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Future<void> _loadStatistics() async {
     final allLocations = NFTService.getSampleLocations();
     final claimedIds = await NFTService.getClaimedNFTIds();
-    
+
     setState(() {
       _totalLocations = allLocations.length;
       _visitedLocations = claimedIds.length;
       _remainingLocations = _totalLocations - _visitedLocations;
-      _completionPercentage = _totalLocations > 0 
-          ? (_visitedLocations / _totalLocations) * 100 
+      _completionPercentage = _totalLocations > 0
+          ? (_visitedLocations / _totalLocations) * 100
           : 0.0;
     });
   }
@@ -58,10 +60,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final nftProvider = context.watch<NFTProvider>();
     final walletProvider = context.watch<WalletProvider>();
     final now = DateTime.now();
-    final dateFormat = DateFormat('EEEE, MMMM dd, yyyy');
-    final timeFormat = DateFormat('hh:mm a');
-    
-    // Refresh stats when provider changes (e.g., after claiming)
+    final dateFormat = DateFormat('EEEE, d MMM');
+
+    // Refresh stats when provider changes
     if (nftProvider.claimedNFTs.length != _visitedLocations) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _loadStatistics();
@@ -69,389 +70,439 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('India NFT Explorer'),
-        actions: [
-          // Wallet Connection Button
-          Padding(
-            padding: EdgeInsets.only(right: size.width * 0.02),
-            child: walletProvider.isConnected
-                ? Chip(
-                    avatar: const Icon(Icons.account_balance_wallet, size: 18),
-                    label: Text(
-                      walletProvider.displayAddress,
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                    onDeleted: () => walletProvider.disconnectWallet(),
-                    deleteIcon: const Icon(Icons.close, size: 18),
-                  )
-                : IconButton(
-                    icon: const Icon(Icons.account_balance_wallet_outlined),
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/wallet-connect');
-                    },
-                    tooltip: 'Connect Wallet',
-                  ),
+        title: Text(
+          'Wandr',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1,
+            shadows: [
+              Shadow(
+                blurRadius: 10,
+                color: AppTheme.primaryPurple.withOpacity(0.5),
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
+        ),
+        backgroundColor: Colors.transparent,
+        actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             onPressed: () {
               _loadStatistics();
               nftProvider.loadAvailableNFTs();
               nftProvider.loadClaimedNFTs();
             },
-            tooltip: 'Refresh',
           ),
+          SizedBox(width: 8),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await _loadStatistics();
-          await nftProvider.loadAvailableNFTs();
-          await nftProvider.loadClaimedNFTs();
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.all(size.width * 0.05),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Date and Time Card
-              Card(
-                child: Padding(
-                  padding: EdgeInsets.all(size.width * 0.05),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.calendar_today,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: size.width * 0.06,
-                          ),
-                          SizedBox(width: size.width * 0.03),
-                          Text(
-                            'Today',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [AppTheme.deepBackground, AppTheme.deepBackground],
+          ),
+        ),
+        child: Stack(
+          children: [
+            // Background ambient glow
+            Positioned(
+              top: -100,
+              right: -100,
+              child: ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
+                child: Container(
+                  width: 300,
+                  height: 300,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppTheme.primaryPurple.withOpacity(0.15),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 100,
+              left: -50,
+              child: ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: 60, sigmaY: 60),
+                child: Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppTheme.accentCyan.withOpacity(0.1),
+                  ),
+                ),
+              ),
+            ),
+
+            RefreshIndicator(
+              onRefresh: () async {
+                await _loadStatistics();
+                await nftProvider.loadAvailableNFTs();
+                await nftProvider.loadClaimedNFTs();
+              },
+              color: AppTheme.accentCyan,
+              backgroundColor: AppTheme.surfaceDark,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  120,
+                  20,
+                  40,
+                ), // Top padding for extended app bar
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Greeting Section
+                    Text(
+                      'Welcome Back,',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
                       ),
-                      SizedBox(height: size.height * 0.01),
-                      Text(
-                        dateFormat.format(now),
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                      SizedBox(height: size.height * 0.005),
-                      Text(
-                        timeFormat.format(now),
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
+                    ),
+                    SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Traveler',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.surfaceGlass,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.1),
+                            ),
+                          ),
+                          child: Text(
+                            dateFormat.format(now),
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: size.height * 0.02),
-              
-              // Statistics Cards
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildStatCard(
-                      context,
-                      size,
-                      'Total Locations',
-                      _totalLocations.toString(),
-                      Icons.location_on,
-                      Colors.blue,
-                    ),
-                  ),
-                  SizedBox(width: size.width * 0.03),
-                  Expanded(
-                    child: _buildStatCard(
-                      context,
-                      size,
-                      'Visited',
-                      _visitedLocations.toString(),
-                      Icons.check_circle,
-                      Colors.green,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: size.height * 0.02),
-              
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildStatCard(
-                      context,
-                      size,
-                      'Remaining',
-                      _remainingLocations.toString(),
-                      Icons.explore,
-                      Colors.orange,
-                    ),
-                  ),
-                  SizedBox(width: size.width * 0.03),
-                  Expanded(
-                    child: _buildStatCard(
-                      context,
-                      size,
-                      'Progress',
-                      '${_completionPercentage.toStringAsFixed(0)}%',
-                      Icons.trending_up,
-                      Colors.purple,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: size.height * 0.02),
-              
-              // Progress Card
-              Card(
-                child: Padding(
-                  padding: EdgeInsets.all(size.width * 0.05),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Collection Progress',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                          Text(
-                            '$_visitedLocations / $_totalLocations',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: size.height * 0.02),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: LinearProgressIndicator(
-                          value: _completionPercentage / 100,
-                          minHeight: size.height * 0.02,
-                          backgroundColor: Colors.grey[300],
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: size.height * 0.02),
-              
-              // Wallet Status Card
-              if (!walletProvider.isConnected)
-                Card(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.pushNamed(context, '/wallet-connect');
-                    },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: EdgeInsets.all(size.width * 0.05),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.account_balance_wallet,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: size.width * 0.08,
-                          ),
-                          SizedBox(width: size.width * 0.04),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Connect Wallet',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: Theme.of(context).colorScheme.primary,
-                                      ),
-                                ),
-                                SizedBox(height: size.height * 0.005),
-                                Text(
-                                  'Connect your wallet to claim NFTs on the blockchain',
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Icon(
-                            Icons.arrow_forward_ios,
-                            size: size.width * 0.05,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              if (walletProvider.isConnected) ...[
-                Card(
-                  color: Colors.green.withValues(alpha: 0.1),
-                  child: Padding(
-                    padding: EdgeInsets.all(size.width * 0.05),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.check_circle,
-                          color: Colors.green,
-                          size: 24,
-                        ),
-                        SizedBox(width: size.width * 0.04),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Wallet Connected',
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.green,
-                                    ),
-                              ),
-                              SizedBox(height: size.height * 0.005),
-                              Text(
-                                walletProvider.walletAddress ?? '',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      fontFamily: 'monospace',
-                                    ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-                SizedBox(height: size.height * 0.02),
-              ],
-              
-              // Quick Actions
-              Text(
-                'Quick Actions',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              SizedBox(height: size.height * 0.015),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildActionCard(
-                      context,
-                      size,
-                      'Explore Map',
-                      Icons.map,
-                      Colors.blue,
-                      () {
-                        Navigator.pushNamed(context, '/map');
-                      },
-                    ),
-                  ),
-                  SizedBox(width: size.width * 0.03),
-                  Expanded(
-                    child: _buildActionCard(
-                      context,
-                      size,
-                      'View NFTs',
-                      Icons.collections,
-                      Colors.purple,
-                      () {
-                        Navigator.pushNamed(context, '/available-nfts');
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: size.height * 0.015),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildActionCard(
-                      context,
-                      size,
-                      'My Collection',
-                      Icons.folder,
-                      Colors.green,
-                      () {
-                        Navigator.pushNamed(context, '/collections');
-                      },
-                    ),
-                  ),
-                  SizedBox(width: size.width * 0.03),
-                  Expanded(
-                    child: _buildActionCard(
-                      context,
-                      size,
-                      'Claim Range',
-                      Icons.location_searching,
-                      Colors.orange,
-                      () {
-                        _showClaimRangeInfo(context, size);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildStatCard(
-    BuildContext context,
-    Size size,
-    String label,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(size.width * 0.04),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              icon,
-              color: color,
-              size: size.width * 0.08,
-            ),
-            SizedBox(height: size.height * 0.01),
-            Text(
-              value,
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-            ),
-            SizedBox(height: size.height * 0.005),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.bodySmall,
+                    SizedBox(height: 30),
+
+                    // Wallet Status (Highlighted if not connected)
+                    if (!walletProvider.isConnected)
+                      Container(
+                        margin: EdgeInsets.only(bottom: 24),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppTheme.primaryPurple.withOpacity(0.2),
+                              AppTheme.primaryPurple.withOpacity(0.05),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: AppTheme.primaryPurple.withOpacity(0.3),
+                          ),
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/wallet-connect'),
+                            borderRadius: BorderRadius.circular(24),
+                            child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.primaryPurple,
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppTheme.primaryPurple
+                                              .withOpacity(0.4),
+                                          blurRadius: 12,
+                                          offset: Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Icon(
+                                      Icons.account_balance_wallet,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Connect Wallet',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          'Start collecting NFTs',
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    color: Colors.white70,
+                                    size: 20,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      Container(
+                        margin: EdgeInsets.only(bottom: 24),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppTheme.surfaceGlass,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: AppTheme.accentCyan.withOpacity(0.2),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.check_circle_rounded,
+                              color: AppTheme.accentCyan,
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Wallet Connected',
+                                    style: TextStyle(
+                                      color: AppTheme.accentCyan,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    walletProvider.displayAddress,
+                                    style: TextStyle(
+                                      color: Colors.white60,
+                                      fontFamily: 'monospace',
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.logout, color: Colors.white38),
+                              onPressed: () =>
+                                  walletProvider.disconnectWallet(),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    // Progress Section
+                    Text(
+                      'Your Progress',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+
+                    // Main Progress Card
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: AppTheme.surfaceGlass,
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.05),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Locations Visited',
+                                    style: TextStyle(
+                                      color: Colors.white60,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.baseline,
+                                    textBaseline: TextBaseline.alphabetic,
+                                    children: [
+                                      Text(
+                                        '$_visitedLocations',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 36,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        ' / $_totalLocations',
+                                        style: TextStyle(
+                                          color: Colors.white38,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                height: 60,
+                                width: 60,
+                                child: Stack(
+                                  children: [
+                                    Center(
+                                      child: CircularProgressIndicator(
+                                        value: _completionPercentage / 100,
+                                        strokeWidth: 6,
+                                        backgroundColor: Colors.white10,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              AppTheme.accentCyan,
+                                            ),
+                                      ),
+                                    ),
+                                    Center(
+                                      child: Text(
+                                        '${_completionPercentage.toInt()}%',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 30),
+
+                    // Quick Actions Grid
+                    Text(
+                      'Explore',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 25),
+                    GridView.count(
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      childAspectRatio: 1.1,
+                      children: [
+                        _buildModernActionCard(
+                          context,
+                          'Map View',
+                          'Find NFTs near you',
+                          Icons.map_rounded,
+                          AppTheme.primaryPurple,
+                          () => Navigator.pushNamed(context, '/map'),
+                        ),
+                        _buildModernActionCard(
+                          context,
+                          'Collection',
+                          'View your earnings',
+                          Icons.grid_view_rounded,
+                          AppTheme.accentCyan,
+                          () => Navigator.pushNamed(context, '/collections'),
+                        ),
+                        _buildModernActionCard(
+                          context,
+                          'NFT List',
+                          'Browse all items',
+                          Icons.list_alt_rounded,
+                          Colors.pinkAccent,
+                          () => Navigator.pushNamed(context, '/available-nfts'),
+                        ),
+                        _buildModernActionCard(
+                          context,
+                          'Settings',
+                          'App preferences',
+                          Icons.settings_rounded,
+                          Colors.orange,
+                          () => Navigator.pushNamed(context, '/settings'),
+                        ),
+                      ],
+                    ),
+
+                    // Bottom spacer for scrolling
+                    SizedBox(height: 100),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
@@ -459,81 +510,69 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildActionCard(
+  Widget _buildModernActionCard(
     BuildContext context,
-    Size size,
-    String label,
+    String title,
+    String subtitle,
     IconData icon,
     Color color,
     VoidCallback onTap,
   ) {
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: EdgeInsets.all(size.width * 0.04),
-          child: Column(
-            children: [
-              Icon(
-                icon,
-                color: color,
-                size: size.width * 0.1,
-              ),
-              SizedBox(height: size.height * 0.01),
-              Text(
-                label,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceDark,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 10,
+            offset: Offset(0, 4),
           ),
-        ),
+        ],
       ),
-    );
-  }
-
-  void _showClaimRangeInfo(BuildContext context, Size size) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Claim Range Information'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'To claim an NFT, you must be within 20 meters of the location.',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            SizedBox(height: size.height * 0.02),
-            Row(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(24),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(
-                  Icons.info_outline,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                SizedBox(width: size.width * 0.02),
-                Expanded(
-                  child: Text(
-                    'Make sure location services are enabled and you are physically present at the location.',
-                    style: Theme.of(context).textTheme.bodySmall,
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(14),
                   ),
+                  child: Icon(icon, color: color, size: 26),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(color: Colors.white54, fontSize: 12),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
           ),
-        ],
+        ),
       ),
     );
   }
 }
-

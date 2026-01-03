@@ -1,9 +1,11 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/nft_provider.dart';
 import '../providers/wallet_provider.dart';
 import '../models/nft_model.dart';
+import '../theme/app_theme.dart';
 import 'wallet_connect_screen.dart';
 
 class CollectionsScreen extends StatefulWidget {
@@ -28,197 +30,206 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
     final nftProvider = context.watch<NFTProvider>();
     final walletProvider = context.watch<WalletProvider>();
 
-    // Show connect wallet if not connected
-    if (!walletProvider.isConnected) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('My Collection'),
-        ),
-        body: Center(
-          child: Padding(
-            padding: EdgeInsets.all(size.width * 0.1),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.account_balance_wallet_outlined,
-                  size: size.width * 0.25,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                SizedBox(height: size.height * 0.03),
-                Text(
-                  'Connect Your Wallet',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: size.height * 0.02),
-                Text(
-                  'Connect your wallet to view your NFT collection and claim new NFTs from locations.',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: size.height * 0.04),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const WalletConnectScreen(),
-                      ),
-                    );
-                  },
-                  icon: Icon(Icons.account_balance_wallet),
-                  label: Text('Connect Wallet'),
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: size.width * 0.1,
-                      vertical: size.height * 0.02,
-                    ),
-                  ),
-                ),
-                SizedBox(height: size.height * 0.02),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/settings');
-                  },
-                  child: Text('Go to Settings'),
-                ),
-              ],
-            ),
+    return Scaffold(
+      backgroundColor: AppTheme.deepBackground,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: Text(
+          'My Collection',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
           ),
         ),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Collection'),
+        backgroundColor: Colors.transparent,
         actions: [
-          // Show wallet address in app bar
-          Padding(
-            padding: EdgeInsets.only(right: size.width * 0.03),
-            child: Center(
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: size.width * 0.03,
-                  vertical: size.width * 0.01,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.check_circle, color: Colors.green, size: 16),
-                    SizedBox(width: size.width * 0.02),
-                    Text(
-                      walletProvider.displayAddress,
-                      style: TextStyle(
-                        fontSize: size.width * 0.03,
-                        fontFamily: 'monospace',
-                        color: Colors.green[700],
-                      ),
-                    ),
-                  ],
-                ),
+          if (walletProvider.isConnected)
+            Container(
+              margin: EdgeInsets.only(right: 16),
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppTheme.surfaceGlass,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.green.withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.account_balance_wallet, color: Colors.greenAccent, size: 16),
+                  SizedBox(width: 8),
+                  Text(
+                     walletProvider.displayAddress.length > 6 
+                      ? '${walletProvider.displayAddress.substring(0,6)}...' 
+                      : walletProvider.displayAddress,
+                    style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace'),
+                  ),
+                ],
               ),
             ),
-          ),
         ],
       ),
-      body: nftProvider.isLoading && nftProvider.claimedNFTs.isEmpty
-          ? Center(
-              child: CircularProgressIndicator(
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            )
-          : nftProvider.error != null
-              ? Center(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppTheme.deepBackground,
+              Color(0xFF0F1218),
+            ],
+          ),
+        ),
+        child: !walletProvider.isConnected
+            ? Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.error_outline,
-                        size: size.width * 0.2,
-                        color: Colors.red,
+                      Container(
+                        padding: EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: AppTheme.surfaceGlass,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                             BoxShadow(
+                               color: AppTheme.primaryPurple.withOpacity(0.2),
+                               blurRadius: 20,
+                               spreadRadius: 5,
+                             )
+                          ]
+                        ),
+                        child: Icon(
+                          Icons.account_balance_wallet_outlined,
+                          size: 60,
+                          color: Colors.white70,
+                        ),
                       ),
-                      SizedBox(height: size.height * 0.02),
+                      SizedBox(height: 32),
                       Text(
-                        nftProvider.error!,
-                        style: Theme.of(context).textTheme.bodyLarge,
+                        'Connect Wallet',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      Text(
+                        'Connect your wallet to view your NFT collection and claim new items.',
+                        style: TextStyle(color: Colors.white54, fontSize: 16),
                         textAlign: TextAlign.center,
                       ),
-                      SizedBox(height: size.height * 0.02),
+                      SizedBox(height: 32),
                       ElevatedButton(
-                        onPressed: () => nftProvider.loadClaimedNFTs(),
-                        child: const Text('Retry'),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const WalletConnectScreen(),
+                            ),
+                          );
+                        },
+                        child: Text('Connect Now'),
                       ),
                     ],
                   ),
-                )
-              : nftProvider.claimedNFTs.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.collections_outlined,
-                            size: size.width * 0.3,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(height: size.height * 0.02),
-                          Text(
-                            'No NFTs claimed yet',
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
-                          SizedBox(height: size.height * 0.01),
-                          Text(
-                            'Visit locations to claim NFTs!',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: () => nftProvider.loadClaimedNFTs(),
-                      child: GridView.builder(
-                        padding: EdgeInsets.all(size.width * 0.04),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: size.width > 600 ? 3 : 2,
-                          crossAxisSpacing: size.width * 0.04,
-                          mainAxisSpacing: size.width * 0.04,
-                          childAspectRatio: 0.75,
-                        ),
-                        itemCount: nftProvider.claimedNFTs.length,
-                        itemBuilder: (context, index) {
-                          final nft = nftProvider.claimedNFTs[index];
-                          return _buildNFTCard(context, nft, size);
-                        },
-                      ),
+                ),
+              )
+            : nftProvider.isLoading && nftProvider.claimedNFTs.isEmpty
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: AppTheme.primaryPurple,
                     ),
+                  )
+                : nftProvider.claimedNFTs.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.collections_outlined,
+                              size: 80,
+                              color: Colors.white10,
+                            ),
+                            SizedBox(height: 24),
+                            Text(
+                              'No NFTs found',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Start exploring to collect items!',
+                              style: TextStyle(color: Colors.white38),
+                            ),
+                          ],
+                        ),
+                      )
+                    : RefreshIndicator(
+                        onRefresh: () => nftProvider.loadClaimedNFTs(),
+                         color: AppTheme.accentCyan,
+                         backgroundColor: AppTheme.surfaceDark,
+                        child: CustomScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          slivers: [
+                            SliverToBoxAdapter(child: SizedBox(height: 100)), // AppBar spacing
+                            SliverPadding(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              sliver: SliverGrid(
+                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: size.width > 600 ? 3 : 2,
+                                  crossAxisSpacing: 16,
+                                  mainAxisSpacing: 16,
+                                  childAspectRatio: 0.7,
+                                ),
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    final nft = nftProvider.claimedNFTs[index];
+                                    return _buildCollectionCard(context, nft);
+                                  },
+                                  childCount: nftProvider.claimedNFTs.length,
+                                ),
+                              ),
+                            ),
+                            SliverToBoxAdapter(child: SizedBox(height: 40)),
+                          ],
+                        ),
+                      ),
+      ),
     );
   }
 
-  Widget _buildNFTCard(BuildContext context, NFTModel nft, Size size) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          Navigator.pushNamed(
-            context,
-            '/nft-detail',
-            arguments: nft.tokenId,
-          );
-        },
+  Widget _buildCollectionCard(BuildContext context, NFTModel nft) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          '/nft-detail',
+          arguments: nft.tokenId,
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.surfaceGlass,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withOpacity(0.05)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 8,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // NFT Image
             Expanded(
-              flex: 3,
+              flex: 4,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -226,36 +237,47 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                     imageUrl: nft.imageUrl,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
-                      color: Colors.grey[300],
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
+                       color: AppTheme.surfaceDark,
+                       child: Center(child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primaryPurple)),
                     ),
                     errorWidget: (context, url, error) => Container(
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image_not_supported),
+                       color: AppTheme.surfaceDark,
+                       child: Icon(Icons.broken_image, color: Colors.white24),
                     ),
                   ),
-                  Positioned(
-                    top: size.width * 0.02,
-                    right: size.width * 0.02,
+                   Positioned(
+                    top: 8,
+                    right: 8,
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: size.width * 0.02,
-                        vertical: size.width * 0.01,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.green,
+                        color: AppTheme.accentCyan,
                         borderRadius: BorderRadius.circular(12),
+                         boxShadow: [
+                           BoxShadow(color: AppTheme.accentCyan.withOpacity(0.4), blurRadius: 8),
+                         ]
                       ),
                       child: Text(
                         'OWNED',
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: size.width * 0.025,
+                          color: Colors.black,
+                          fontSize: 10,
                           fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: 50,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Colors.transparent, Colors.black87],
                         ),
                       ),
                     ),
@@ -263,29 +285,32 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                 ],
               ),
             ),
-            // NFT Info
             Expanded(
               flex: 2,
               child: Padding(
-                padding: EdgeInsets.all(size.width * 0.03),
+                padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       nft.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: size.height * 0.005),
-                    if (nft.claimedAt != null)
+                    SizedBox(height: 4),
+                     if (nft.claimedAt != null)
                       Text(
-                        'Claimed: ${_formatDate(nft.claimedAt!)}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                        'Claimed ${_formatDate(nft.claimedAt!)}',
+                        style: TextStyle(
+                          color: Colors.white54,
+                          fontSize: 10,
+                        ),
                       ),
                   ],
                 ),
@@ -301,8 +326,3 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
     return '${date.day}/${date.month}/${date.year}';
   }
 }
-
-
-
-
-

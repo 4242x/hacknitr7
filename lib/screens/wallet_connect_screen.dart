@@ -1,7 +1,9 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/wallet_provider.dart';
+import '../theme/app_theme.dart';
 
 class WalletConnectScreen extends StatefulWidget {
   const WalletConnectScreen({super.key});
@@ -33,7 +35,7 @@ class _WalletConnectScreenState extends State<WalletConnectScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please enter a valid Ethereum address (0x...)'),
-          backgroundColor: Colors.red,
+          backgroundColor: Colors.redAccent,
         ),
       );
       return;
@@ -58,7 +60,7 @@ class _WalletConnectScreenState extends State<WalletConnectScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(walletProvider.error!),
-          backgroundColor: Colors.red,
+          backgroundColor: Colors.redAccent,
         ),
       );
     }
@@ -77,122 +79,106 @@ class _WalletConnectScreenState extends State<WalletConnectScreen> {
     final walletProvider = context.watch<WalletProvider>();
 
     return Scaffold(
+      backgroundColor: AppTheme.deepBackground,
       appBar: AppBar(
-        title: const Text('Connect Wallet'),
+        title: const Text('Connect Wallet', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.transparent,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(size.width * 0.05),
+        padding: EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Info Card
-            Card(
-              child: Padding(
-                padding: EdgeInsets.all(size.width * 0.05),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.info_outline,
-                          color: Theme.of(context).colorScheme.primary,
-                          size: size.width * 0.06,
-                        ),
-                        SizedBox(width: size.width * 0.03),
-                        Text(
-                          'Connect Your Wallet',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: size.height * 0.02),
-                    Text(
-                      'To claim NFTs on the blockchain, you need to connect a Web3 wallet. Enter your wallet address below.',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    SizedBox(height: size.height * 0.015),
-                    Text(
-                      'Supported: MetaMask, Trust Wallet, Coinbase Wallet, etc.',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                    ),
-                  ],
+            Container(
+              padding: EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [AppTheme.surfaceGlass, AppTheme.surfaceDark],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.white10),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppTheme.accentCyan.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.account_balance_wallet,
+                          color: AppTheme.accentCyan,
+                          size: 24,
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      Text(
+                        'Link Account',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'To claim NFTs on the blockchain, you need to connect a Web3 wallet. Enter your wallet address below.',
+                    style: TextStyle(color: Colors.white70, height: 1.5),
+                  ),
+                ],
               ),
             ),
-            SizedBox(height: size.height * 0.03),
+            SizedBox(height: 32),
             
             // Wallet Address Input
             Text(
               'Wallet Address',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            SizedBox(height: size.height * 0.01),
+            SizedBox(height: 12),
             TextField(
               controller: _addressController,
+              style: TextStyle(color: Colors.white, fontFamily: 'monospace'),
               decoration: InputDecoration(
                 hintText: '0x...',
-                labelText: 'Enter your wallet address',
+                hintStyle: TextStyle(color: Colors.white24),
+                filled: true,
+                fillColor: AppTheme.surfaceGlass,
                 suffixIcon: IconButton(
-                  icon: const Icon(Icons.paste),
+                  icon: const Icon(Icons.paste, color: Colors.white54),
                   onPressed: _pasteFromClipboard,
                   tooltip: 'Paste from clipboard',
                 ),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(color: Colors.white10),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(color: AppTheme.primaryPurple),
                 ),
               ),
               maxLines: 2,
-              style: const TextStyle(fontFamily: 'monospace'),
             ),
-            SizedBox(height: size.height * 0.02),
-            
-            // Instructions
-            Card(
-              color: Theme.of(context).colorScheme.surfaceVariant,
-              child: Padding(
-                padding: EdgeInsets.all(size.width * 0.04),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'How to get your wallet address:',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    SizedBox(height: size.height * 0.01),
-                    _buildInstruction(
-                      context,
-                      size,
-                      '1. Open MetaMask (or your wallet app)',
-                    ),
-                    _buildInstruction(
-                      context,
-                      size,
-                      '2. Tap on your account name',
-                    ),
-                    _buildInstruction(
-                      context,
-                      size,
-                      '3. Copy your address',
-                    ),
-                    _buildInstruction(
-                      context,
-                      size,
-                      '4. Paste it here',
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: size.height * 0.03),
+            SizedBox(height: 32),
             
             // Connect Button
             SizedBox(
@@ -200,44 +186,67 @@ class _WalletConnectScreenState extends State<WalletConnectScreen> {
               child: ElevatedButton(
                 onPressed: _isValidating ? null : _connectWallet,
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: size.height * 0.02),
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  backgroundColor: AppTheme.primaryPurple,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  elevation: 5,
+                  shadowColor: AppTheme.primaryPurple.withOpacity(0.5),
                 ),
                 child: _isValidating
                     ? SizedBox(
-                        height: size.height * 0.02,
-                        width: size.height * 0.02,
+                        height: 24,
+                        width: 24,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           color: Colors.white,
                         ),
                       )
                     : const Text(
-                        'Connect Wallet',
-                        style: TextStyle(fontSize: 16),
+                        'Unlock Features',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
               ),
             ),
             
+            SizedBox(height: 20),
+            Center(
+              child: Text(
+                'Supported: MetaMask, Trust Wallet, etc.',
+                 style: TextStyle(color: Colors.white38, fontSize: 12),
+              ),
+            ),
+
             if (walletProvider.isConnected) ...[
-              SizedBox(height: size.height * 0.02),
-              Divider(),
-              SizedBox(height: size.height * 0.02),
-              Card(
-                color: Colors.green.withValues(alpha: 0.1),
-                child: ListTile(
-                  leading: const Icon(Icons.check_circle, color: Colors.green),
-                  title: const Text('Wallet Connected'),
-                  subtitle: Text(walletProvider.displayAddress),
-                  trailing: TextButton(
-                    onPressed: () async {
-                      await walletProvider.disconnectWallet();
-                      if (mounted) {
-                        Navigator.pop(context);
-                      }
-                    },
-                    child: const Text('Disconnect'),
-                  ),
-                ),
+              SizedBox(height: 40),
+              Container(
+                 padding: EdgeInsets.all(16),
+                 decoration: BoxDecoration(
+                   color: Colors.green.withOpacity(0.1),
+                   borderRadius: BorderRadius.circular(16),
+                   border: Border.all(color: Colors.green.withOpacity(0.3)),
+                 ),
+                 child: Row(
+                   children: [
+                     Icon(Icons.check_circle, color: Colors.greenAccent),
+                     SizedBox(width: 16),
+                     Expanded(
+                       child: Column(
+                         crossAxisAlignment: CrossAxisAlignment.start,
+                         children: [
+                           Text('Connected', style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold)),
+                           Text(walletProvider.displayAddress, style: TextStyle(color: Colors.white60, fontSize: 12, fontFamily: 'monospace')),
+                         ],
+                       ),
+                     ),
+                     IconButton(
+                       icon: Icon(Icons.logout, color: Colors.white38),
+                       onPressed: () async {
+                         await walletProvider.disconnectWallet();
+                         if (mounted) setState((){}); // refresh
+                       },
+                     ),
+                   ],
+                 ),
               ),
             ],
           ],
@@ -245,30 +254,4 @@ class _WalletConnectScreenState extends State<WalletConnectScreen> {
       ),
     );
   }
-
-  Widget _buildInstruction(BuildContext context, Size size, String text) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: size.height * 0.008),
-      child: Row(
-        children: [
-          Icon(
-            Icons.arrow_right,
-            size: size.width * 0.04,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          SizedBox(width: size.width * 0.02),
-          Expanded(
-            child: Text(
-              text,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
-
-
-
-

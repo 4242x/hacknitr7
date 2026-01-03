@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -6,6 +7,7 @@ import '../providers/location_provider.dart';
 import '../providers/wallet_provider.dart';
 import '../services/nft_service.dart';
 import '../models/nft_model.dart';
+import '../theme/app_theme.dart';
 import 'wallet_connect_screen.dart';
 import 'transaction_signing_screen.dart';
 
@@ -21,11 +23,26 @@ class NFTDetailScreen extends StatefulWidget {
 class _NFTDetailScreenState extends State<NFTDetailScreen> {
   NFTModel? _nft;
   bool _isLoading = false;
+  final ScrollController _scrollController = ScrollController();
+  bool _showTitleInAppBar = false;
 
   @override
   void initState() {
     super.initState();
     _loadNFT();
+    _scrollController.addListener(() {
+      if (_scrollController.offset > 300 && !_showTitleInAppBar) {
+        setState(() => _showTitleInAppBar = true);
+      } else if (_scrollController.offset <= 300 && _showTitleInAppBar) {
+        setState(() => _showTitleInAppBar = false);
+      }
+    });
+  }
+  
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadNFT() async {
@@ -51,32 +68,7 @@ class _NFTDetailScreenState extends State<NFTDetailScreen> {
     // Check if wallet is connected
     if (!walletProvider.isConnected || walletProvider.walletAddress == null) {
       if (!mounted) return;
-      final shouldConnect = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Wallet Not Connected'),
-          content: Text('Please connect your wallet to claim NFTs.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text('Connect Wallet'),
-            ),
-          ],
-        ),
-      );
-      
-      if (shouldConnect == true && mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const WalletConnectScreen(),
-          ),
-        );
-      }
+      _showConnectWalletDialog();
       return;
     }
 
@@ -89,6 +81,7 @@ class _NFTDetailScreenState extends State<NFTDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Unable to get your location. Please enable location services.'),
+          backgroundColor: Colors.redAccent,
         ),
       );
       return;
@@ -108,7 +101,8 @@ class _NFTDetailScreenState extends State<NFTDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(nftProvider.error ?? 'Failed to claim NFT'),
-          backgroundColor: Colors.red,
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
         ),
       );
       return;
@@ -143,9 +137,15 @@ class _NFTDetailScreenState extends State<NFTDetailScreen> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('NFT claimed successfully! Transaction: ${result['transactionHash']}'),
+            content: Row(
+               children: [
+                 Icon(Icons.check_circle, color: Colors.white),
+                 SizedBox(width: 8),
+                 Expanded(child: Text('NFT claimed successfully!')),
+               ],
+            ),
             backgroundColor: Colors.green,
-            duration: const Duration(seconds: 5),
+            behavior: SnackBarBehavior.floating,
           ),
         );
       } else {
@@ -153,6 +153,7 @@ class _NFTDetailScreenState extends State<NFTDetailScreen> {
           const SnackBar(
             content: Text('Transaction successful but failed to save locally'),
             backgroundColor: Colors.orange,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -160,10 +161,53 @@ class _NFTDetailScreenState extends State<NFTDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(result['error'] ?? 'Transaction failed'),
-          backgroundColor: Colors.red,
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }
+  }
+
+  void _showConnectWalletDialog() {
+     showDialog(
+        context: context,
+        builder: (context) => ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: AlertDialog(
+              backgroundColor: AppTheme.surfaceDark.withOpacity(0.9),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  side: BorderSide(color: Colors.white10),
+              ),
+              title: Text('Wallet Required', style: TextStyle(color: Colors.white)),
+              content: Text(
+                'Please connect your wallet to claim this NFT location.',
+                style: TextStyle(color: Colors.white70),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Cancel', style: TextStyle(color: Colors.white54)),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const WalletConnectScreen(),
+                      ),
+                    );
+                  },
+                  child: Text('Connect'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
   }
 
   @override
@@ -173,185 +217,292 @@ class _NFTDetailScreenState extends State<NFTDetailScreen> {
 
     if (_isLoading || _nft == null) {
       return Scaffold(
+        backgroundColor: AppTheme.deepBackground,
         appBar: AppBar(
-          title: const Text('NFT Details'),
+             iconTheme: IconThemeData(color: Colors.white),
+             backgroundColor: Colors.transparent,
         ),
         body: Center(
           child: CircularProgressIndicator(
-            color: Theme.of(context).colorScheme.primary,
+            color: AppTheme.primaryPurple,
           ),
         ),
       );
     }
 
     return Scaffold(
+      backgroundColor: AppTheme.deepBackground,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('NFT Details'),
+        backgroundColor: _showTitleInAppBar ? AppTheme.deepBackground.withOpacity(0.9) : Colors.transparent,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: Container(
+          margin: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.black26, 
+            shape: BoxShape.circle,
+          ),
+          child: BackButton(color: Colors.white),
+        ),
+        title: _showTitleInAppBar 
+            ? Text(_nft!.name, style: TextStyle(color: Colors.white, fontSize: 16))
+            : null,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // NFT Image
-            Container(
-              width: double.infinity,
-              height: size.height * 0.4,
-              color: Colors.grey[300],
-              child: CachedNetworkImage(
-                imageUrl: _nft!.imageUrl,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Center(
-                  child: CircularProgressIndicator(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-                errorWidget: (context, url, error) => const Icon(
-                  Icons.image_not_supported,
-                  size: 100,
+      body: Stack(
+        children: [
+          // Full screen image with parallax-like effect (simple via stack)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: size.height * 0.55,
+            child: CachedNetworkImage(
+              imageUrl: _nft!.imageUrl,
+              fit: BoxFit.cover,
+              placeholder: (context, url) => Container(
+                color: AppTheme.surfaceDark,
+                child: Center(child: CircularProgressIndicator(color: AppTheme.primaryPurple)),
+              ),
+              errorWidget: (context, url, error) => Container(
+                color: AppTheme.surfaceDark,
+                child: Icon(Icons.image_not_supported, color: Colors.white24, size: 50),
+              ),
+            ),
+          ),
+          
+          // Gradient Overlay
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: size.height * 0.55,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black26,
+                    Colors.transparent,
+                    AppTheme.deepBackground.withOpacity(0.8),
+                    AppTheme.deepBackground,
+                  ],
+                  stops: [0.0, 0.4, 0.85, 1.0],
                 ),
               ),
             ),
-            // NFT Info
-            Padding(
-              padding: EdgeInsets.all(size.width * 0.05),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          _nft!.name,
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
-                      ),
-                      if (_nft!.isClaimed)
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: size.width * 0.03,
-                            vertical: size.width * 0.015,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
+          ),
+
+          // Scrollable Content
+          Positioned.fill(
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              padding: EdgeInsets.only(top: size.height * 0.4),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header Info
+                    Row(
+                      children: [
+                        Expanded(
                           child: Text(
-                            'CLAIMED',
+                            _nft!.name,
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: size.width * 0.03,
+                              fontSize: 32,
                               fontWeight: FontWeight.bold,
+                              height: 1.1,
                             ),
                           ),
                         ),
-                    ],
-                  ),
-                  SizedBox(height: size.height * 0.02),
-                  Text(
-                    'Description',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  SizedBox(height: size.height * 0.01),
-                  Text(
-                    _nft!.description,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  if (_nft!.location != null) ...[
-                    SizedBox(height: size.height * 0.03),
-                    Text(
-                      'Location',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    SizedBox(height: size.height * 0.01),
-                    Card(
-                      child: ListTile(
-                        leading: Icon(
-                          Icons.location_on,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        title: Text(_nft!.location!.name),
-                        subtitle: Text(
-                          '${_nft!.location!.latitude.toStringAsFixed(4)}, ${_nft!.location!.longitude.toStringAsFixed(4)}',
-                        ),
-                        onTap: () {
-                          Navigator.pushNamed(context, '/map');
-                        },
-                      ),
-                    ),
-                  ],
-                  if (_nft!.claimedAt != null) ...[
-                    SizedBox(height: size.height * 0.02),
-                    Text(
-                      'Claimed',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    SizedBox(height: size.height * 0.01),
-                    Text(
-                      _formatDate(_nft!.claimedAt!),
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ],
-                  if (_nft!.ownerAddress != null) ...[
-                    SizedBox(height: size.height * 0.02),
-                    Text(
-                      'Owner',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    SizedBox(height: size.height * 0.01),
-                    Text(
-                      _nft!.ownerAddress!,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontFamily: 'monospace',
-                          ),
-                    ),
-                  ],
-                  SizedBox(height: size.height * 0.03),
-                  if (!_nft!.isClaimed)
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: nftProvider.isLoading ? null : _claimNFT,
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                            vertical: size.height * 0.02,
-                          ),
-                        ),
-                        child: nftProvider.isLoading
-                            ? SizedBox(
-                                height: size.height * 0.02,
-                                width: size.height * 0.02,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : Text(
-                                'Claim NFT',
-                                style: TextStyle(
-                                  fontSize: size.width * 0.04,
-                                ),
+                        if (_nft!.isClaimed)
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: Colors.green),
+                            ),
+                            child: Text(
+                              'OWNED',
+                              style: TextStyle(
+                                color: Colors.greenAccent,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
                               ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    
+                    SizedBox(height: 16),
+                    
+                    // Location Pill
+                    if (_nft!.location != null)
+                      Container(
+                        margin: EdgeInsets.only(bottom: 24),
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: AppTheme.surfaceGlass,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.white10),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                             Icon(Icons.location_on, color: AppTheme.accentCyan, size: 20),
+                             SizedBox(width: 8),
+                             Flexible(
+                               child: Text(
+                                 _nft!.location!.name,
+                                 style: TextStyle(color: Colors.white70),
+                                 maxLines: 1,
+                                 overflow: TextOverflow.ellipsis,
+                               ),
+                             ),
+                             SizedBox(width: 12),
+                             Icon(Icons.arrow_forward_ios, color: Colors.white24, size: 14),
+                          ],
+                        ),
+                      ),
+                    
+                    // Description
+                    Text(
+                      'Description',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                ],
+                    SizedBox(height: 8),
+                    Text(
+                      _nft!.description,
+                      style: TextStyle(
+                        color: Colors.white60,
+                        fontSize: 16,
+                        height: 1.5,
+                      ),
+                    ),
+                    
+                    SizedBox(height: 32),
+                    
+                    // Details Grid
+                    GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      childAspectRatio: 1.5,
+                      children: [
+                        _buildDetailCard(
+                          'Coordinates',
+                          '${_nft!.location?.latitude.toStringAsFixed(3)}, ${_nft!.location?.longitude.toStringAsFixed(3)}',
+                          Icons.radar,
+                        ),
+                         _buildDetailCard(
+                          'Token ID',
+                          '#${widget.tokenId.substring(0, widget.tokenId.length > 6 ? 6 : widget.tokenId.length)}...',
+                          Icons.fingerprint,
+                        ),
+                         if (_nft!.claimedAt != null)
+                           _buildDetailCard(
+                             'Claimed On',
+                             _formatDate(_nft!.claimedAt!),
+                             Icons.calendar_today,
+                           ),
+                      ],
+                    ),
+                    
+                     if (_nft!.ownerAddress != null) ...[
+                        SizedBox(height: 20),
+                        Container(
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                             color: AppTheme.surfaceDark,
+                             borderRadius: BorderRadius.circular(16),
+                             border: Border.all(color: Colors.white10),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Owner Address', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                              SizedBox(height: 4),
+                              Text(
+                                _nft!.ownerAddress!,
+                                style: TextStyle(color: AppTheme.accentCyan, fontFamily: 'monospace'),
+                              ),
+                            ],
+                          ),
+                        ),
+                     ],
+                    
+                    SizedBox(height: 100), // Spacer for fab
+                  ],
+                ),
               ),
             ),
-          ],
+          ),
+        ],
+      ),
+      floatingActionButton: !_nft!.isClaimed ? Container(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        width: double.infinity,
+        child: FloatingActionButton.extended(
+          onPressed: nftProvider.isLoading ? null : _claimNFT,
+          backgroundColor: AppTheme.primaryPurple,
+          elevation: 10,
+          label: nftProvider.isLoading
+           ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+           : Text('Claim Location NFT', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          icon: nftProvider.isLoading ? null : Icon(Icons.explore),
         ),
+      ) : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+  
+  Widget _buildDetailCard(String label, String value, IconData icon) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceGlass,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: Colors.white54, size: 20),
+          SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white38,
+              fontSize: 12,
+            ),
+          ),
+        ],
       ),
     );
   }
 
   String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+    return '${date.day}/${date.month}/${date.year}';
   }
 }
-

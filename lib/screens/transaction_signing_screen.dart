@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../services/transaction_signing_service.dart';
 import '../services/blockchain_service.dart';
+import '../theme/app_theme.dart';
 
 class TransactionSigningScreen extends StatefulWidget {
   final String tokenId;
@@ -16,7 +17,8 @@ class TransactionSigningScreen extends StatefulWidget {
   });
 
   @override
-  State<TransactionSigningScreen> createState() => _TransactionSigningScreenState();
+  State<TransactionSigningScreen> createState() =>
+      _TransactionSigningScreenState();
 }
 
 class _TransactionSigningScreenState extends State<TransactionSigningScreen> {
@@ -72,12 +74,18 @@ class _TransactionSigningScreenState extends State<TransactionSigningScreen> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
+      backgroundColor: AppTheme.deepBackground,
       appBar: AppBar(
-        title: const Text('Sign Transaction'),
+        title: const Text(
+          'Sign Transaction',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.transparent,
+        iconTheme: IconThemeData(color: Colors.white),
         actions: [
           if (_transactionHash != null)
             IconButton(
-              icon: const Icon(Icons.check_circle, color: Colors.green),
+              icon: const Icon(Icons.check_circle, color: Colors.greenAccent),
               onPressed: () {
                 Navigator.pop(context, {
                   'success': true,
@@ -90,21 +98,25 @@ class _TransactionSigningScreenState extends State<TransactionSigningScreen> {
       ),
       body: Stack(
         children: [
-          WebViewWidget(controller: _controller),
+          ClipRRect(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
+            ),
+            child: WebViewWidget(controller: _controller),
+          ),
           if (_isLoading)
             Container(
-              color: Colors.white,
+              color: AppTheme.deepBackground,
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    SizedBox(height: size.height * 0.02),
+                    CircularProgressIndicator(color: AppTheme.primaryPurple),
+                    SizedBox(height: 20),
                     Text(
-                      'Loading transaction...',
-                      style: Theme.of(context).textTheme.bodyLarge,
+                      'Preparing secure environment...',
+                      style: TextStyle(color: Colors.white70),
                     ),
                   ],
                 ),
@@ -112,29 +124,33 @@ class _TransactionSigningScreenState extends State<TransactionSigningScreen> {
             ),
           if (_error != null)
             Container(
-              color: Colors.white,
-              padding: EdgeInsets.all(size.width * 0.05),
+              color: AppTheme.deepBackground,
+              padding: EdgeInsets.all(24),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
                       Icons.error_outline,
-                      size: size.width * 0.2,
-                      color: Colors.red,
+                      size: 60,
+                      color: Colors.redAccent,
                     ),
-                    SizedBox(height: size.height * 0.02),
+                    SizedBox(height: 20),
                     Text(
-                      'Error',
-                      style: Theme.of(context).textTheme.headlineSmall,
+                      'Connection Error',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    SizedBox(height: size.height * 0.01),
+                    SizedBox(height: 12),
                     Text(
                       _error!,
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      style: TextStyle(color: Colors.white54),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: size.height * 0.03),
+                    SizedBox(height: 32),
                     ElevatedButton(
                       onPressed: () {
                         setState(() {
@@ -142,12 +158,19 @@ class _TransactionSigningScreenState extends State<TransactionSigningScreen> {
                         });
                         _initializeWebView();
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryPurple,
+                      ),
                       child: const Text('Retry'),
                     ),
-                    SizedBox(height: size.height * 0.01),
+                    SizedBox(height: 12),
                     TextButton(
-                      onPressed: () => Navigator.pop(context, {'success': false}),
-                      child: const Text('Cancel'),
+                      onPressed: () =>
+                          Navigator.pop(context, {'success': false}),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(color: Colors.white54),
+                      ),
                     ),
                   ],
                 ),
@@ -157,35 +180,56 @@ class _TransactionSigningScreenState extends State<TransactionSigningScreen> {
       ),
       bottomNavigationBar: _transactionHash != null
           ? Container(
-              padding: EdgeInsets.all(size.width * 0.04),
-              color: Colors.green.withValues(alpha: 0.1),
+              padding: EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppTheme.surfaceDark,
+                border: Border(top: BorderSide(color: Colors.white10)),
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.check_circle, color: Colors.green),
-                      SizedBox(width: size.width * 0.02),
+                      Icon(Icons.check_circle, color: Colors.greenAccent),
+                      SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           'Transaction successful!',
                           style: TextStyle(
-                            color: Colors.green[700],
+                            color: Colors.greenAccent,
                             fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: size.height * 0.01),
-                  Text(
-                    'Hash: ${_transactionHash!.substring(0, 10)}...${_transactionHash!.substring(_transactionHash!.length - 8)}',
-                    style: TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: size.width * 0.03,
+                  SizedBox(height: 12),
+                  Container(
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Hash:',
+                          style: TextStyle(color: Colors.white54, fontSize: 12),
+                        ),
+                        Text(
+                          '${_transactionHash!.substring(0, 10)}...${_transactionHash!.substring(_transactionHash!.length - 8)}',
+                          style: TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 12,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(height: size.height * 0.01),
+                  SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -196,7 +240,10 @@ class _TransactionSigningScreenState extends State<TransactionSigningScreen> {
                           'tokenId': widget.tokenId,
                         });
                       },
-                      child: const Text('Done'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryPurple,
+                      ),
+                      child: const Text('Return to App'),
                     ),
                   ),
                 ],
@@ -206,4 +253,3 @@ class _TransactionSigningScreenState extends State<TransactionSigningScreen> {
     );
   }
 }
-

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import '../providers/wallet_provider.dart';
+import '../theme/app_theme.dart';
 import 'wallet_connect_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -10,315 +11,188 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     final themeProvider = context.watch<ThemeProvider>();
 
     return Scaffold(
+      backgroundColor: AppTheme.deepBackground,
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: const Text('Settings', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.transparent,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: ListView(
-        padding: EdgeInsets.all(size.width * 0.05),
+        padding: EdgeInsets.all(20),
         children: [
           // Wallet Manager Section
-          _buildWalletSection(context, size),
-          SizedBox(height: size.height * 0.02),
+          _buildWalletSection(context),
+          SizedBox(height: 24),
           
-          // Theme Section
-          Card(
-            child: Padding(
-              padding: EdgeInsets.all(size.width * 0.04),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Appearance',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  SizedBox(height: size.height * 0.02),
-                  _buildThemeOption(
+          Text(
+            'Appearance',
+            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceGlass,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withOpacity(0.05)),
+            ),
+            child: Column(
+              children: [
+                  _buildModernThemeOption(
                     context,
-                    size,
-                    'Light Mode',
-                    Icons.light_mode,
-                    ThemeMode.light,
-                    themeProvider,
-                  ),
-                  SizedBox(height: size.height * 0.01),
-                  _buildThemeOption(
-                    context,
-                    size,
                     'Dark Mode',
-                    Icons.dark_mode,
+                    Icons.dark_mode_rounded,
                     ThemeMode.dark,
                     themeProvider,
                   ),
-                  SizedBox(height: size.height * 0.01),
-                  _buildThemeOption(
+                  Divider(height: 1, color: Colors.white10),
+                   _buildModernThemeOption(
                     context,
-                    size,
+                    'Light Mode',
+                    Icons.light_mode_rounded,
+                    ThemeMode.light,
+                    themeProvider,
+                  ),
+                  Divider(height: 1, color: Colors.white10),
+                  _buildModernThemeOption(
+                    context,
                     'System Default',
-                    Icons.brightness_auto,
+                    Icons.brightness_auto_rounded,
                     ThemeMode.system,
                     themeProvider,
                   ),
-                ],
-              ),
+              ],
             ),
           ),
-          SizedBox(height: size.height * 0.02),
+          
+          SizedBox(height: 32),
           
           // App Info Section
-          Card(
-            child: Padding(
-              padding: EdgeInsets.all(size.width * 0.04),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'About',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  SizedBox(height: size.height * 0.02),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Icon(
-                      Icons.info_outline,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    title: const Text('App Version'),
-                    subtitle: const Text('1.0.0'),
-                  ),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Icon(
-                      Icons.location_on_outlined,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    title: const Text('Claim Range'),
-                    subtitle: const Text('20 meters'),
-                  ),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Icon(
-                      Icons.map_outlined,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    title: const Text('Total Locations'),
-                    subtitle: const Text('15 locations across India'),
-                  ),
-                ],
-              ),
+          Text(
+            'About',
+            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceGlass,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withOpacity(0.05)),
+            ),
+            child: Column(
+              children: [
+                 _buildInfoTile('App Version', '1.0.0', Icons.info_outline),
+                 Divider(height: 1, color: Colors.white10),
+                 _buildInfoTile('Claim Range', '20 meters', Icons.radar),
+                 Divider(height: 1, color: Colors.white10),
+                 _buildInfoTile('Total Locations', '15 locations', Icons.map),
+              ],
             ),
           ),
+          SizedBox(height: 40),
+          Center(
+             child: Text('Made with ❤️ in India', style: TextStyle(color: Colors.white38)),
+          ),
+          SizedBox(height: 20),
         ],
       ),
     );
   }
 
-  Widget _buildWalletSection(BuildContext context, Size size) {
+  Widget _buildWalletSection(BuildContext context) {
     final walletProvider = context.watch<WalletProvider>();
 
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(size.width * 0.04),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.account_balance_wallet,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                SizedBox(width: size.width * 0.03),
-                Text(
-                  'Wallet',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ],
-            ),
-            SizedBox(height: size.height * 0.02),
-            if (walletProvider.isConnected) ...[
-              // Connected Wallet Info
-              Container(
-                padding: EdgeInsets.all(size.width * 0.04),
-                decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Colors.green.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.check_circle, color: Colors.green, size: 20),
-                        SizedBox(width: size.width * 0.02),
-                        Text(
-                          'Wallet Connected',
-                          style: TextStyle(
-                            color: Colors.green,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: size.height * 0.01),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Address',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                              SizedBox(height: size.height * 0.005),
-                              SelectableText(
-                                walletProvider.walletAddress ?? '',
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      fontFamily: 'monospace',
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.copy),
-                          onPressed: () async {
-                            if (walletProvider.walletAddress != null) {
-                              await Clipboard.setData(
-                                ClipboardData(text: walletProvider.walletAddress!),
-                              );
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Address copied to clipboard'),
-                                    duration: Duration(seconds: 2),
-                                  ),
-                                );
-                              }
-                            }
-                          },
-                          tooltip: 'Copy address',
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: size.height * 0.01),
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: () async {
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: Text('Disconnect Wallet'),
-                              content: Text('Are you sure you want to disconnect your wallet?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, false),
-                                  child: Text('Cancel'),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: Text('Disconnect'),
-                                ),
-                              ],
-                            ),
-                          );
-                          if (confirm == true) {
-                            await walletProvider.disconnectWallet();
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Wallet disconnected'),
-                                  backgroundColor: Colors.orange,
-                                ),
-                              );
-                            }
-                          }
-                        },
-                        icon: Icon(Icons.logout),
-                        label: Text('Disconnect Wallet'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ] else ...[
-              // Not Connected
-              Container(
-                padding: EdgeInsets.all(size.width * 0.04),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Colors.orange.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
-                        SizedBox(width: size.width * 0.02),
-                        Text(
-                          'No Wallet Connected',
-                          style: TextStyle(
-                            color: Colors.orange,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: size.height * 0.01),
-                    Text(
-                      'Connect your wallet to claim and view NFTs on the blockchain.',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    SizedBox(height: size.height * 0.02),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const WalletConnectScreen(),
-                            ),
-                          );
-                        },
-                        icon: Icon(Icons.account_balance_wallet),
-                        label: Text('Connect Wallet'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ],
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppTheme.primaryPurple.withOpacity(0.2), AppTheme.surfaceGlass],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppTheme.primaryPurple.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+           Row(
+             children: [
+               Icon(Icons.account_balance_wallet, color: Colors.white),
+               SizedBox(width: 12),
+               Text('Wallet Status', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+             ],
+           ),
+           SizedBox(height: 16),
+           if (walletProvider.isConnected) ...[
+             Container(
+               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+               decoration: BoxDecoration(
+                 color: Colors.green.withOpacity(0.2),
+                 borderRadius: BorderRadius.circular(12),
+                 border: Border.all(color: Colors.green.withOpacity(0.3)),
+               ),
+               child: Row(
+                 mainAxisSize: MainAxisSize.min,
+                 children: [
+                   Icon(Icons.check_circle, color: Colors.greenAccent, size: 16),
+                    SizedBox(width: 8),
+                   Text('Connected', style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold)),
+                 ],
+               ),
+             ),
+             SizedBox(height: 12),
+             Text(
+                walletProvider.displayAddress,
+                style: TextStyle(color: Colors.white70, fontFamily: 'monospace'),
+             ),
+             SizedBox(height: 20),
+             SizedBox(
+               width: double.infinity,
+               child: OutlinedButton(
+                 onPressed: () async {
+                    // Logic to disconnect
+                     await walletProvider.disconnectWallet();
+                 },
+                 style: OutlinedButton.styleFrom(
+                   foregroundColor: Colors.redAccent,
+                   side: BorderSide(color: Colors.redAccent.withOpacity(0.5)),
+                 ),
+                 child: Text('Disconnect Wallet'),
+               ),
+             ),
+           ] else ...[
+             Text(
+               'Connect your wallet to start collecting NFTs.',
+               style: TextStyle(color: Colors.white70),
+             ),
+             SizedBox(height: 20),
+             SizedBox(
+               width: double.infinity,
+               child: ElevatedButton(
+                 onPressed: () {
+                   Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const WalletConnectScreen(),
+                      ),
+                    );
+                 },
+                 style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryPurple),
+                 child: Text('Connect Wallet'),
+               ),
+             ),
+           ],
+        ],
       ),
     );
   }
 
-  Widget _buildThemeOption(
+  Widget _buildModernThemeOption(
     BuildContext context,
-    Size size,
     String title,
     IconData icon,
     ThemeMode mode,
@@ -328,63 +202,59 @@ class SettingsScreen extends StatelessWidget {
     
     return InkWell(
       onTap: () => themeProvider.setThemeMode(mode),
-      borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: EdgeInsets.all(size.width * 0.04),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Colors.transparent,
-            width: 2,
-          ),
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: isSelected
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.onSurfaceVariant,
-              size: size.width * 0.06,
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isSelected ? AppTheme.primaryPurple : Colors.white10,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: Colors.white,
+                size: 20,
+              ),
             ),
-            SizedBox(width: size.width * 0.04),
+            SizedBox(width: 16),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                          color: isSelected
-                              ? Theme.of(context).colorScheme.primary
-                              : null,
-                        ),
-                  ),
-                  if (isSelected)
-                    Text(
-                      'Currently active',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                    ),
-                ],
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
               ),
             ),
             if (isSelected)
-              Icon(
-                Icons.check_circle,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+              Icon(Icons.check, color: AppTheme.accentCyan),
           ],
         ),
       ),
     );
   }
+  
+  Widget _buildInfoTile(String title, String subtitle, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white54, size: 24),
+          SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: TextStyle(color: Colors.white, fontSize: 16)),
+                Text(subtitle, style: TextStyle(color: Colors.white54, fontSize: 14)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
-
