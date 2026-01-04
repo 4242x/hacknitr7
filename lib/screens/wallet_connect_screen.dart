@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -74,6 +75,7 @@ class _WalletConnectScreenState extends State<WalletConnectScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     final walletProvider = context.watch<WalletProvider>();
 
     return Scaffold(

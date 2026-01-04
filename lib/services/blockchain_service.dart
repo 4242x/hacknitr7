@@ -1,37 +1,15 @@
-// Blockchain service - supports multiple chains (Shardeum and Polygon)
+// Blockchain service for Polygon Amoy testnet
 // Update the contract address after deploying your NFT contract
 
 import 'package:web3dart/web3dart.dart';
 import 'package:http/http.dart' as http;
-import '../providers/chain_provider.dart';
 
 class BlockchainService {
-  // Get RPC URL from chain provider
-  static String getRpcUrl(ChainProvider chainProvider) {
-    return chainProvider.rpcUrl;
-  }
-  
-  // Get contract address from chain provider
-  static String getContractAddress(ChainProvider chainProvider) {
-    return chainProvider.contractAddress;
-  }
-  
-  // Get chain ID from chain provider
-  static int getChainId(ChainProvider chainProvider) {
-    return chainProvider.chainId;
-  }
-  
-  // Legacy support - Polygon Amoy (for backward compatibility)
+  // Polygon Amoy testnet RPC endpoint
   static const String polygonAmoyRpc = 'https://rpc-amoy.polygon.technology';
-  static const String polygonContractAddress = '0x558DBA74dFF9824B0Cd40E3fd21b278ABFfC7a4F';
   
-  // Shardeum Liberty
-  static const String shardeumRpc = 'https://api-mezame.shardeum.org';
-  static const String shardeumContractAddress = '0x558DBA74dFF9824B0Cd40E3fd21b278ABFfC7a4F'; // Update with deployed address
-  
-  // Current contract address (use getContractAddress instead)
-  @Deprecated('Use getContractAddress(chainProvider) instead')
-  static const String nftContractAddress = polygonContractAddress;
+  // Deployed NFT contract address on Polygon Amoy testnet
+  static const String nftContractAddress = '0x558DBA74dFF9824B0Cd40E3fd21b278ABFfC7a4F';
   
   // Contract ABI - Full ABI from deployed contract
   static const String contractABI = '''
@@ -612,13 +590,7 @@ class BlockchainService {
   ''';
 
   // Create Web3 client
-  static Web3Client getClient(ChainProvider chainProvider) {
-    return Web3Client(getRpcUrl(chainProvider), http.Client());
-  }
-  
-  // Legacy method (uses Polygon)
-  @Deprecated('Use getClient(chainProvider) instead')
-  static Web3Client getClientLegacy() {
+  static Web3Client getClient() {
     return Web3Client(polygonAmoyRpc, http.Client());
   }
 
@@ -629,17 +601,15 @@ class BlockchainService {
     String tokenId,
     String recipientAddress,
     String privateKey, // In production, never store private keys in the app!
-    ChainProvider chainProvider,
   ) async {
     try {
-      final client = getClient(chainProvider);
+      final client = getClient();
       final credentials = EthPrivateKey.fromHex(privateKey);
       
       // Get contract
-      final contractAddress = getContractAddress(chainProvider);
       final contract = DeployedContract(
         ContractAbi.fromJson(contractABI, 'LocationNFT'),
-        EthereumAddress.fromHex(contractAddress),
+        EthereumAddress.fromHex(nftContractAddress),
       );
       
       // Prepare mint function
@@ -658,7 +628,7 @@ class BlockchainService {
             'Location $tokenId', // Location name
           ],
         ),
-        chainId: getChainId(chainProvider),
+        chainId: 80002, // Polygon Amoy testnet chain ID
       );
       
       // Wait for transaction receipt
@@ -673,7 +643,7 @@ class BlockchainService {
         'success': success,
         'transactionHash': transaction,
         'tokenId': tokenId,
-        'contractAddress': getContractAddress(chainProvider),
+        'contractAddress': nftContractAddress,
         'recipient': recipientAddress,
         'blockNumber': blockNumber,
       };
@@ -689,15 +659,13 @@ class BlockchainService {
   static Future<bool> checkNFTOwnership(
     String tokenId,
     String ownerAddress,
-    ChainProvider chainProvider,
   ) async {
     try {
-      final client = getClient(chainProvider);
+      final client = getClient();
       
-      final contractAddress = getContractAddress(chainProvider);
       final contract = DeployedContract(
         ContractAbi.fromJson(contractABI, 'LocationNFT'),
-        EthereumAddress.fromHex(contractAddress),
+        EthereumAddress.fromHex(nftContractAddress),
       );
       
       final ownerOfFunction = contract.function('ownerOf');
@@ -721,17 +689,13 @@ class BlockchainService {
   }
 
   // Get NFT metadata from blockchain
-  static Future<Map<String, dynamic>?> getNFTMetadata(
-    String tokenId,
-    ChainProvider chainProvider,
-  ) async {
+  static Future<Map<String, dynamic>?> getNFTMetadata(String tokenId) async {
     try {
-      final client = getClient(chainProvider);
+      final client = getClient();
       
-      final contractAddress = getContractAddress(chainProvider);
       final contract = DeployedContract(
         ContractAbi.fromJson(contractABI, 'LocationNFT'),
-        EthereumAddress.fromHex(contractAddress),
+        EthereumAddress.fromHex(nftContractAddress),
       );
       
       final tokenURIFunction = contract.function('tokenURI');
