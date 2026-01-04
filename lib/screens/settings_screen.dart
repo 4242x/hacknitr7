@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../providers/theme_provider.dart';
 import '../providers/wallet_provider.dart';
+import '../providers/chain_provider.dart';
 import '../theme/app_theme.dart';
 import 'wallet_connect_screen.dart';
 
@@ -11,7 +10,6 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = context.watch<ThemeProvider>();
 
     return Scaffold(
       backgroundColor: AppTheme.deepBackground,
@@ -27,47 +25,9 @@ class SettingsScreen extends StatelessWidget {
           _buildWalletSection(context),
           SizedBox(height: 24),
           
-          Text(
-            'Appearance',
-            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 12),
-          Container(
-            decoration: BoxDecoration(
-              color: AppTheme.surfaceGlass,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
-            ),
-            child: Column(
-              children: [
-                  _buildModernThemeOption(
-                    context,
-                    'Dark Mode',
-                    Icons.dark_mode_rounded,
-                    ThemeMode.dark,
-                    themeProvider,
-                  ),
-                  Divider(height: 1, color: Colors.white10),
-                   _buildModernThemeOption(
-                    context,
-                    'Light Mode',
-                    Icons.light_mode_rounded,
-                    ThemeMode.light,
-                    themeProvider,
-                  ),
-                  Divider(height: 1, color: Colors.white10),
-                  _buildModernThemeOption(
-                    context,
-                    'System Default',
-                    Icons.brightness_auto_rounded,
-                    ThemeMode.system,
-                    themeProvider,
-                  ),
-              ],
-            ),
-          ),
-          
-          SizedBox(height: 32),
+          // Chain Selection Section
+          _buildChainSection(context),
+          SizedBox(height: 24),
           
           // App Info Section
           Text(
@@ -190,18 +150,94 @@ class SettingsScreen extends StatelessWidget {
       ),
     );
   }
+  
+  Widget _buildChainSection(BuildContext context) {
+    final chainProvider = context.watch<ChainProvider>();
 
-  Widget _buildModernThemeOption(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Blockchain Network',
+          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 12),
+        Container(
+          decoration: BoxDecoration(
+            color: AppTheme.surfaceGlass,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withOpacity(0.05)),
+          ),
+          child: Column(
+            children: [
+              _buildChainOption(
+                context,
+                'Shardeum Testnet',
+                'Default chain - Fast and low cost',
+                Icons.bolt,
+                BlockchainChain.shardeum,
+                chainProvider,
+              ),
+              Divider(height: 1, color: Colors.white10),
+              _buildChainOption(
+                context,
+                'Polygon Amoy',
+                'Backup chain - Ethereum compatible',
+                Icons.polyline,
+                BlockchainChain.polygon,
+                chainProvider,
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 8),
+        Container(
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.blue.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.blue.withOpacity(0.3)),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.info_outline, color: Colors.blue, size: 16),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Current: ${chainProvider.chainName} (Chain ID: ${chainProvider.chainId})',
+                  style: TextStyle(color: Colors.blue[200], fontSize: 12),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChainOption(
     BuildContext context,
     String title,
+    String subtitle,
     IconData icon,
-    ThemeMode mode,
-    ThemeProvider themeProvider,
+    BlockchainChain chain,
+    ChainProvider chainProvider,
   ) {
-    final isSelected = themeProvider.themeMode == mode;
+    final isSelected = chainProvider.currentChain == chain;
     
     return InkWell(
-      onTap: () => themeProvider.setThemeMode(mode),
+      onTap: () async {
+        await chainProvider.switchChain(chain);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Switched to ${chainProvider.chainName}'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Row(
@@ -220,13 +256,23 @@ class SettingsScreen extends StatelessWidget {
             ),
             SizedBox(width: 16),
             Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(color: Colors.white54, fontSize: 12),
+                  ),
+                ],
               ),
             ),
             if (isSelected)

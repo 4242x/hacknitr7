@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Modern Deep Space color scheme
@@ -9,13 +10,13 @@ class AppTheme {
   static const Color surfaceGlass = Color(0xFF1E232F);
 
   // Gradients
-  static const LinearGradient primaryGradient = LinearGradient(
+  static final LinearGradient primaryGradient = LinearGradient(
     colors: [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  static const LinearGradient surfaceGradient = LinearGradient(
+  static final LinearGradient surfaceGradient = LinearGradient(
     colors: [Color(0xFF1F2937), Color(0xFF111827)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
@@ -38,11 +39,22 @@ class AppTheme {
         outline: Colors.grey.shade300,
       ),
       scaffoldBackgroundColor: lightBackground,
-      appBarTheme: const AppBarTheme(
+      textTheme: GoogleFonts.poppinsTextTheme().copyWith(
+        displayLarge: GoogleFonts.dmSans(),
+        displayMedium: GoogleFonts.dmSans(),
+        displaySmall: GoogleFonts.dmSans(),
+        headlineLarge: GoogleFonts.dmSans(),
+        headlineMedium: GoogleFonts.dmSans(),
+        headlineSmall: GoogleFonts.dmSans(),
+        titleLarge: GoogleFonts.dmSans(),
+        titleMedium: GoogleFonts.dmSans(),
+        titleSmall: GoogleFonts.dmSans(),
+      ),
+      appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: TextStyle(
+        titleTextStyle: GoogleFonts.dmSans(
           color: lightText,
           fontSize: 24,
           fontWeight: FontWeight.bold,
@@ -68,7 +80,10 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          textStyle: GoogleFonts.poppins(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
@@ -87,14 +102,24 @@ class AppTheme {
         outline: Color(0xFF2D3748),
       ),
       scaffoldBackgroundColor: deepBackground,
-      fontFamily: 'Roboto', // Using default, but styling for modern feel
-      appBarTheme: const AppBarTheme(
+      textTheme: GoogleFonts.poppinsTextTheme().copyWith(
+        displayLarge: GoogleFonts.dmSans(),
+        displayMedium: GoogleFonts.dmSans(),
+        displaySmall: GoogleFonts.dmSans(),
+        headlineLarge: GoogleFonts.dmSans(),
+        headlineMedium: GoogleFonts.dmSans(),
+        headlineSmall: GoogleFonts.dmSans(),
+        titleLarge: GoogleFonts.dmSans(),
+        titleMedium: GoogleFonts.dmSans(),
+        titleSmall: GoogleFonts.dmSans(),
+      ),
+      appBarTheme: AppBarTheme(
         backgroundColor: deepBackground,
         elevation: 0,
         centerTitle: false,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
-        titleTextStyle: TextStyle(
+        titleTextStyle: GoogleFonts.dmSans(
           color: Colors.white,
           fontSize: 28,
           fontWeight: FontWeight.bold,
@@ -121,7 +146,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          textStyle: const TextStyle(
+          textStyle: GoogleFonts.poppins(
             fontSize: 16,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.5,

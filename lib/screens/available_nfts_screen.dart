@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -34,10 +34,7 @@ class _AvailableNFTsScreenState extends State<AvailableNFTsScreen> {
         backgroundColor: Colors.transparent,
         title: Text(
           'Marketplace',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         actions: [
           Container(
@@ -56,17 +53,12 @@ class _AvailableNFTsScreenState extends State<AvailableNFTsScreen> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              AppTheme.deepBackground,
-              Color(0xFF131825),
-            ],
+            colors: [AppTheme.deepBackground, Color(0xFF131825)],
           ),
         ),
         child: nftProvider.isLoading && nftProvider.availableNFTs.isEmpty
             ? Center(
-                child: CircularProgressIndicator(
-                  color: AppTheme.primaryPurple,
-                ),
+                child: CircularProgressIndicator(color: AppTheme.primaryPurple),
               )
             : RefreshIndicator(
                 onRefresh: () => nftProvider.loadAvailableNFTs(),
@@ -107,7 +99,11 @@ class _AvailableNFTsScreenState extends State<AvailableNFTsScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.error_outline, size: 60, color: Colors.redAccent),
+                              Icon(
+                                Icons.error_outline,
+                                size: 60,
+                                color: Colors.redAccent,
+                              ),
                               SizedBox(height: 16),
                               Text(
                                 nftProvider.error!,
@@ -115,7 +111,8 @@ class _AvailableNFTsScreenState extends State<AvailableNFTsScreen> {
                               ),
                               SizedBox(height: 16),
                               ElevatedButton(
-                                onPressed: () => nftProvider.loadAvailableNFTs(),
+                                onPressed: () =>
+                                    nftProvider.loadAvailableNFTs(),
                                 child: Text('Retry'),
                               ),
                             ],
@@ -128,9 +125,16 @@ class _AvailableNFTsScreenState extends State<AvailableNFTsScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.explore_off, size: 60, color: Colors.white24),
+                              Icon(
+                                Icons.explore_off,
+                                size: 60,
+                                color: Colors.white24,
+                              ),
                               SizedBox(height: 16),
-                              Text('No NFTs available', style: TextStyle(color: Colors.white54)),
+                              Text(
+                                'No NFTs available',
+                                style: TextStyle(color: Colors.white54),
+                              ),
                             ],
                           ),
                         ),
@@ -139,19 +143,20 @@ class _AvailableNFTsScreenState extends State<AvailableNFTsScreen> {
                       SliverPadding(
                         padding: EdgeInsets.symmetric(horizontal: 16),
                         sliver: SliverGrid(
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: size.width > 600 ? 3 : 2,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            childAspectRatio: 0.7,
-                          ),
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              final nft = nftProvider.availableNFTs[index];
-                              return _buildModernNFTCard(context, nft);
-                            },
-                            childCount: nftProvider.availableNFTs.length,
-                          ),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: size.width > 600 ? 3 : 2,
+                                crossAxisSpacing: 16,
+                                mainAxisSpacing: 16,
+                                childAspectRatio: 0.7,
+                              ),
+                          delegate: SliverChildBuilderDelegate((
+                            context,
+                            index,
+                          ) {
+                            final nft = nftProvider.availableNFTs[index];
+                            return _buildModernNFTCard(context, nft);
+                          }, childCount: nftProvider.availableNFTs.length),
                         ),
                       ),
                     SliverToBoxAdapter(child: SizedBox(height: 40)),
@@ -165,11 +170,7 @@ class _AvailableNFTsScreenState extends State<AvailableNFTsScreen> {
   Widget _buildModernNFTCard(BuildContext context, NFTModel nft) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(
-          context,
-          '/nft-detail',
-          arguments: nft.tokenId,
-        );
+        Navigator.pushNamed(context, '/nft-detail', arguments: nft.tokenId);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -200,11 +201,16 @@ class _AvailableNFTsScreenState extends State<AvailableNFTsScreen> {
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
                         color: AppTheme.surfaceDark,
-                        child: Center(child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primaryPurple)),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppTheme.primaryPurple,
+                          ),
+                        ),
                       ),
                       errorWidget: (context, url, error) => Container(
-                         color: AppTheme.surfaceDark,
-                         child: Icon(Icons.broken_image, color: Colors.white24),
+                        color: AppTheme.surfaceDark,
+                        child: Icon(Icons.broken_image, color: Colors.white24),
                       ),
                     ),
                   ),
@@ -213,29 +219,36 @@ class _AvailableNFTsScreenState extends State<AvailableNFTsScreen> {
                       top: 8,
                       right: 8,
                       child: ClipRRect(
-                         borderRadius: BorderRadius.circular(12),
-                         child: BackdropFilter(
-                           filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                           child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              color: Colors.black.withOpacity(0.5),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.check_circle, color: Colors.greenAccent, size: 12),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    'CLAIMED',
-                                    style: TextStyle(
-                                      color: Colors.white, 
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold
-                                    ),
+                        borderRadius: BorderRadius.circular(12),
+                        child: BackdropFilter(
+                          filter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            color: Colors.black.withOpacity(0.5),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.check_circle,
+                                  color: Colors.greenAccent,
+                                  size: 12,
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  'CLAIMED',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                ],
-                              ),
-                           ),
-                         ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   Positioned(
@@ -280,10 +293,7 @@ class _AvailableNFTsScreenState extends State<AvailableNFTsScreen> {
                         SizedBox(height: 2),
                         Text(
                           nft.location?.name ?? 'Unknown Location',
-                          style: TextStyle(
-                            color: Colors.white54,
-                            fontSize: 10,
-                          ),
+                          style: TextStyle(color: Colors.white54, fontSize: 10),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),

@@ -6,7 +6,7 @@ import '../models/nft_model.dart';
 
 class NFTService {
   static const String _claimedNftsKey = 'claimed_nfts';
-  static const double _claimRangeMeters = 20.0; // 20 meters range to claim
+  static const double _claimRangeMeters = 700000.0; // 20 meters range to claim
 
   // India locations - Iconic landmarks across the country
   static List<LocationModel> getSampleLocations() {
@@ -32,7 +32,7 @@ class NFTService {
         latitude: 28.6562,
         longitude: 77.2410,
         imageUrl:
-            'https://images.unsplash.com/photo-1587474260584-136574028edf?w=800',
+            'https://upload.wikimedia.org/wikipedia/commons/7/7e/Agra_03-2016_10_Agra_Fort.jpg',
         nftTokenId: '2',
         nftContractAddress: '0x0000000000000000000000000000000000000000',
       ),
@@ -44,7 +44,7 @@ class NFTService {
         latitude: 28.6129,
         longitude: 77.2295,
         imageUrl:
-            'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=800',
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/India_Gate_in_New_Delhi_03-2016.jpg/1638px-India_Gate_in_New_Delhi_03-2016.jpg',
         nftTokenId: '3',
         nftContractAddress: '0x0000000000000000000000000000000000000000',
       ),
@@ -57,7 +57,7 @@ class NFTService {
         latitude: 18.9220,
         longitude: 72.8347,
         imageUrl:
-            'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800',
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Mumbai_03-2016_30_Gateway_of_India.jpg/330px-Mumbai_03-2016_30_Gateway_of_India.jpg',
         nftTokenId: '4',
         nftContractAddress: '0x0000000000000000000000000000000000000000',
       ),
@@ -69,7 +69,7 @@ class NFTService {
         latitude: 18.9445,
         longitude: 72.8260,
         imageUrl:
-            'https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?w=800',
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Marine_Drive_Skyline.jpg/1200px-Marine_Drive_Skyline.jpg',
         nftTokenId: '5',
         nftContractAddress: '0x0000000000000000000000000000000000000000',
       ),
@@ -82,7 +82,7 @@ class NFTService {
         latitude: 26.9239,
         longitude: 75.8267,
         imageUrl:
-            'https://images.unsplash.com/photo-1580322143841-8c4e0e3e1c5f?w=800',
+            'https://upload.wikimedia.org/wikipedia/commons/4/41/East_facade_Hawa_Mahal_Jaipur_from_ground_level_%28July_2022%29_-_img_01.jpg',
         nftTokenId: '6',
         nftContractAddress: '0x0000000000000000000000000000000000000000',
       ),
@@ -94,7 +94,7 @@ class NFTService {
         latitude: 27.1734,
         longitude: 75.8513,
         imageUrl:
-            'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800',
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/20191219_Fort_Amber%2C_Amer%2C_Jaipur_0955_9481.jpg/1200px-20191219_Fort_Amber%2C_Amer%2C_Jaipur_0955_9481.jpg',
         nftTokenId: '7',
         nftContractAddress: '0x0000000000000000000000000000000000000000',
       ),
@@ -107,7 +107,7 @@ class NFTService {
         latitude: 9.4981,
         longitude: 76.3388,
         imageUrl:
-            'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800',
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Boathouse_%287063399547%29.jpg/500px-Boathouse_%287063399547%29.jpg',
         nftTokenId: '8',
         nftContractAddress: '0x0000000000000000000000000000000000000000',
       ),
@@ -120,7 +120,7 @@ class NFTService {
         latitude: 9.9196,
         longitude: 78.1194,
         imageUrl:
-            'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800',
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/An_aerial_view_of_Madurai_city_from_atop_of_Meenakshi_Amman_temple.jpg/1200px-An_aerial_view_of_Madurai_city_from_atop_of_Meenakshi_Amman_temple.jpg',
         nftTokenId: '9',
         nftContractAddress: '0x0000000000000000000000000000000000000000',
       ),
@@ -133,7 +133,7 @@ class NFTService {
         latitude: 22.5448,
         longitude: 88.3426,
         imageUrl:
-            'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+            'https://upload.wikimedia.org/wikipedia/commons/d/d8/Victoria_Memorial_Hall%2C_Megacity_Kolkata.jpg',
         nftTokenId: '10',
         nftContractAddress: '0x0000000000000000000000000000000000000000',
       ),
@@ -146,7 +146,7 @@ class NFTService {
         latitude: 25.3176,
         longitude: 83.0058,
         imageUrl:
-            'https://images.unsplash.com/photo-1561359313733-67566d8e63e2?w=800',
+            'https://upload.wikimedia.org/wikipedia/commons/0/04/Ahilya_Ghat_by_the_Ganges%2C_Varanasi.jpg',
         nftTokenId: '11',
         nftContractAddress: '0x0000000000000000000000000000000000000000',
       ),
@@ -159,7 +159,7 @@ class NFTService {
         latitude: 12.3052,
         longitude: 76.6552,
         imageUrl:
-            'https://images.unsplash.com/photo-1582555561088-750664214436?w=800',
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mysore_Palace_Morning.jpg/1200px-Mysore_Palace_Morning.jpg',
         nftTokenId: '12',
         nftContractAddress: '0x0000000000000000000000000000000000000000',
       ),
@@ -172,7 +172,7 @@ class NFTService {
         latitude: 23.0605,
         longitude: 72.5800,
         imageUrl:
-            'https://images.unsplash.com/photo-1566552881560-0be862a7c445?w=800',
+            'https://upload.wikimedia.org/wikipedia/commons/9/9a/GANDHI_ASHRAM_03.jpg',
         nftTokenId: '13',
         nftContractAddress: '0x0000000000000000000000000000000000000000',
       ),
@@ -185,7 +185,7 @@ class NFTService {
         latitude: 19.8876,
         longitude: 86.0945,
         imageUrl:
-            'https://images.unsplash.com/photo-1626014902804-b25860d5b035?w=800',
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Sun_Temple_Konark_Puri_District_Odisha.jpg/2560px-Sun_Temple_Konark_Puri_District_Odisha.jpg',
         nftTokenId: '14',
         nftContractAddress: '0x0000000000000000000000000000000000000000',
       ),
@@ -198,7 +198,7 @@ class NFTService {
         latitude: 31.6200,
         longitude: 74.8765,
         imageUrl:
-            'https://images.unsplash.com/photo-1570188012678-854559196729?w=800',
+            'https://upload.wikimedia.org/wikipedia/commons/9/94/The_Golden_Temple_of_Amrithsar_7.jpg',
         nftTokenId: '15',
         nftContractAddress: '0x0000000000000000000000000000000000000000',
       ),

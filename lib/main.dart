@@ -5,6 +5,7 @@ import 'providers/location_provider.dart';
 import 'providers/nft_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/wallet_provider.dart';
+import 'providers/chain_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/map_screen.dart';
 import 'screens/available_nfts_screen.dart';
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => ChainProvider()),
         ChangeNotifierProvider(create: (_) => WalletProvider()),
         ChangeNotifierProvider(create: (_) => LocationProvider()),
         ChangeNotifierProvider(create: (_) => NFTProvider()),
@@ -45,7 +47,8 @@ class MyApp extends StatelessWidget {
               '/settings': (context) => const SettingsScreen(),
               '/wallet-connect': (context) => const WalletConnectScreen(),
               '/nft-detail': (context) {
-                final tokenId = ModalRoute.of(context)!.settings.arguments as String;
+                final tokenId =
+                    ModalRoute.of(context)!.settings.arguments as String;
                 return NFTDetailScreen(tokenId: tokenId);
               },
             },
@@ -77,10 +80,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {

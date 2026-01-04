@@ -1,7 +1,8 @@
-import 'dart:ui';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../providers/nft_provider.dart';
 import '../providers/wallet_provider.dart';
 import '../services/nft_service.dart';
@@ -17,7 +18,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int _totalLocations = 0;
   int _visitedLocations = 0;
-  int _remainingLocations = 0;
   double _completionPercentage = 0.0;
 
   @override
@@ -47,7 +47,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     setState(() {
       _totalLocations = allLocations.length;
       _visitedLocations = claimedIds.length;
-      _remainingLocations = _totalLocations - _visitedLocations;
       _completionPercentage = _totalLocations > 0
           ? (_visitedLocations / _totalLocations) * 100
           : 0.0;
@@ -56,7 +55,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     final nftProvider = context.watch<NFTProvider>();
     final walletProvider = context.watch<WalletProvider>();
     final now = DateTime.now();
@@ -72,20 +70,33 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(
-          'Wandr',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1,
-            shadows: [
-              Shadow(
-                blurRadius: 10,
-                color: AppTheme.primaryPurple.withOpacity(0.5),
-                offset: const Offset(0, 2),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'assets/logo.png',
+              height: 48, // 50% bigger (32 * 1.5)
+              width: 48, // 50% bigger (32 * 1.5)
+              fit: BoxFit.contain,
+            ),
+            SizedBox(width: 12),
+            Text(
+              'Wandr',
+              style: GoogleFonts.dmSans(
+                color: Color(0xFFB794F6), // Light purple
+                fontWeight: FontWeight.bold,
+                fontSize: 42, // 50% bigger (28 * 1.5)
+                letterSpacing: 0.5,
+                shadows: [
+                  Shadow(
+                    blurRadius: 10,
+                    color: Color(0xFFB794F6).withOpacity(0.5),
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
         backgroundColor: Colors.transparent,
         actions: [
@@ -115,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               top: -100,
               right: -100,
               child: ImageFiltered(
-                imageFilter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
+                imageFilter: ui.ImageFilter.blur(sigmaX: 80, sigmaY: 80),
                 child: Container(
                   width: 300,
                   height: 300,
@@ -130,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               bottom: 100,
               left: -50,
               child: ImageFiltered(
-                imageFilter: ImageFilter.blur(sigmaX: 60, sigmaY: 60),
+                imageFilter: ui.ImageFilter.blur(sigmaX: 60, sigmaY: 60),
                 child: Container(
                   width: 200,
                   height: 200,
